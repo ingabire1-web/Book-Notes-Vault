@@ -7,16 +7,13 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <!-- Skip to content link for accessibility -->
     <a href="#main-content" class="skip-link">Skip to main content</a>
     
-    <!-- ===== SEPARATE HEADER (Title only) ===== -->
     <header role="banner">
-        <h1>📚 Book & Notes Vault</h1>
+        <h1>Book & Notes Vault</h1>
         <p>Track your reading journey. Add books, tag them, and search through your collection.</p>
     </header>
     
-    <!-- ===== SEPARATE NAVIGATION (Moved outside header) ===== -->
     <nav aria-label="Main navigation">
         <ul>
             <li><a href="#dashboard-section">Dashboard</a></li>
@@ -28,46 +25,29 @@
     </nav>
     
     <main id="main-content">
-        
-        <!-- ABOUT SECTION -->
-        <section id="about-section" aria-labelledby="about-heading">
-            <h2 id="about-heading">📖 About This Vault</h2>
-            <p>Welcome to your personal Book & Notes Vault! This application helps you catalog your reading collection, track your progress, and search through your library with powerful regex patterns.</p>
-            <p><strong>Features:</strong> Add books with validation, search with regex, sort your collection, export/import your data, and set reading goals.</p>
-            <div class="contact-info">
-                <h3>Contact</h3>
-                <p>Email: <a href="mailto:i.ingabire1@gmail.com">i.ingabire1@gmail.com</a></p>
-                <p>GitHub: <a href="https://github.com/ingabire1-web" target="_blank" rel="noopener">github.com/ingabire1-web</a></p>
-            </div>
-        </section>
-        
-        <!-- DASHBOARD SECTION -->
+
         <section id="dashboard-section" aria-labelledby="dashboard-heading">
-            <h2 id="dashboard-heading">📊 Dashboard</h2>
+            <h2 id="dashboard-heading">Dashboard</h2>
             
             <div class="stats-grid" role="region" aria-label="Reading statistics" aria-live="polite">
                 <div class="stat-card">
                     <h3>Total Books</h3>
                     <span class="stat-value" id="total-books">0</span>
                 </div>
-                
                 <div class="stat-card">
                     <h3>Total Pages</h3>
                     <span class="stat-value" id="total-pages">0</span>
                 </div>
-                
                 <div class="stat-card">
                     <h3>Top Tag</h3>
                     <span class="stat-value" id="top-tag">—</span>
                 </div>
-                
                 <div class="stat-card">
                     <h3>This Week</h3>
                     <span class="stat-value" id="recent-books">0</span>
                 </div>
             </div>
             
-            <!-- Cap/Target Section -->
             <div class="cap-section" role="region" aria-label="Reading target">
                 <h3>Monthly Reading Target</h3>
                 <div class="progress-bar">
@@ -79,12 +59,10 @@
                 <div id="cap-status" role="status" aria-live="polite"></div>
             </div>
         </section>
-        
-        <!-- RECORDS/CATALOG SECTION -->
+
         <section id="catalog-section" aria-labelledby="catalog-heading">
-            <h2 id="catalog-heading">📋 Book Records</h2>
+            <h2 id="catalog-heading">Book Records</h2>
             
-            <!-- Search Bar -->
             <div class="search-bar">
                 <label for="search-input" class="sr-only">Search books with regex</label>
                 <input 
@@ -100,7 +78,6 @@
                 <div id="search-status" role="status" aria-live="polite"></div>
             </div>
             
-            <!-- Sort Controls -->
             <div class="sort-controls">
                 <label for="sort-by">Sort by:</label>
                 <select id="sort-by">
@@ -111,8 +88,6 @@
                 </select>
             </div>
             
-            <!-- Records Display -->
-            <!-- Desktop: Table View -->
             <div class="table-container" id="table-container" role="region" aria-label="Book records table">
                 <table id="books-table">
                     <thead>
@@ -125,23 +100,17 @@
                             <th scope="col">Actions</th>
                         </tr>
                     </thead>
-                    <tbody id="table-body">
-                        <!-- Filled by JavaScript -->
-                    </tbody>
+                    <tbody id="table-body"></tbody>
                 </table>
             </div>
             
-            <!-- Mobile: Card View -->
-            <div class="card-view" id="card-container" role="region" aria-label="Book records cards">
-                <!-- Filled by JavaScript -->
-            </div>
+            <div class="card-view" id="card-container" role="region" aria-label="Book records cards"></div>
             
             <p id="no-results-message" style="display: none;">No books found. Try a different search or add a new book!</p>
         </section>
         
-        <!-- ADD/EDIT FORM SECTION -->
         <section id="add-book-section" aria-labelledby="form-heading">
-            <h2 id="form-heading">📝 Add New Book</h2>
+            <h2 id="form-heading">Add New Book</h2>
             
             <form id="book-form" novalidate>
                 <input type="hidden" id="editing-id" value="">
@@ -155,7 +124,7 @@
                         aria-describedby="title-help title-error"
                         placeholder="e.g., The Great Gatsby"
                     >
-                    <span id="title-help" class="help-text">No leading/trailing spaces, no double spaces</span>
+                    <span id="title-help" class="help-text">Regex: <code>/^\S(?:.*\S)?$/</code> — No leading/trailing spaces, no double spaces</span>
                     <span id="title-error" class="error" role="alert"></span>
                 </div>
                 
@@ -168,7 +137,7 @@
                         aria-describedby="author-help author-error"
                         placeholder="e.g., F. Scott Fitzgerald"
                     >
-                    <span id="author-help" class="help-text">Letters, spaces, hyphens, and periods only</span>
+                    <span id="author-help" class="help-text">Regex: <code>/^[A-Za-z][A-Za-z .'-]*$/</code> — Letters, spaces, hyphens, periods only</span>
                     <span id="author-error" class="error" role="alert"></span>
                 </div>
                 
@@ -183,6 +152,7 @@
                         aria-describedby="pages-error"
                         placeholder="e.g., 180"
                     >
+                    <span id="pages-help" class="help-text">Regex: <code>/^(0|[1-9]\d*)$/</code> — Whole positive number, 1-99999</span>
                     <span id="pages-error" class="error" role="alert"></span>
                 </div>
                 
@@ -194,6 +164,7 @@
                         required
                         aria-describedby="date-error"
                     >
+                    <span id="date-help" class="help-text">Regex: <code>/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/</code> — YYYY-MM-DD format</span>
                     <span id="date-error" class="error" role="alert"></span>
                 </div>
                 
@@ -205,7 +176,7 @@
                         placeholder="fiction, classic, mystery"
                         aria-describedby="tags-help tags-error"
                     >
-                    <span id="tags-help" class="help-text">Comma-separated: letters, spaces, hyphens only</span>
+                    <span id="tags-help" class="help-text">Regex: <code>/^[A-Za-z][A-Za-z -]*$/</code> — Comma-separated: letters, spaces, hyphens only</span>
                     <span id="tags-error" class="error" role="alert"></span>
                 </div>
                 
@@ -229,9 +200,8 @@
             </form>
         </section>
         
-        <!-- SETTINGS SECTION -->
         <section id="settings-section" aria-labelledby="settings-heading">
-            <h2 id="settings-heading">⚙️ Settings</h2>
+            <h2 id="settings-heading">Settings</h2>
             
             <div class="setting-group">
                 <h3>Reading Target</h3>
@@ -253,13 +223,27 @@
             <div class="setting-group">
                 <h3>Data Management</h3>
                 <div class="button-group">
-                    <button id="export-btn" type="button">📤 Export JSON</button>
+                    <button id="export-btn" type="button">Export JSON</button>
                     <input type="file" id="import-file" accept=".json" class="hidden">
-                    <button id="import-btn" type="button">📥 Import JSON</button>
-                    <button id="seed-btn" type="button">🌱 Load Seed Data</button>
-                    <button id="clear-btn" type="button" class="danger">🗑️ Clear All Data</button>
+                    <button id="import-btn" type="button">Import JSON</button>
+                    <button id="clear-btn" type="button" class="danger">Clear All Data</button>
                 </div>
                 <div id="data-status" role="status" aria-live="polite"></div>
+            </div>
+        </section>
+        
+        <section id="about-section" aria-labelledby="about-heading">
+            <h2 id="about-heading">About This Vault</h2>
+            <p>Welcome to your personal Book & Notes Vault! This application helps you catalog your reading collection, track your progress, and search through your library with powerful regex patterns.</p>
+            <p><strong>Features:</strong> Add books with validation, search with regex, sort your collection, export/import your data, and set reading goals.</p>
+            
+            
+            </div>
+            
+            <div class="contact-info">
+                <h3>Contact</h3>
+                <p>Email: <a href="mailto:i.ingabire1@gmail.com">i.ingabire1@gmail.com</a></p>
+                <p>GitHub: <a href="https://github.com/ingabire1-web" target="_blank" rel="noopener">github.com/ingabire1-web</a></p>
             </div>
         </section>
         
@@ -270,7 +254,6 @@
         <p>Your data is stored locally in your browser</p>
     </footer>
     
-    <!-- Scripts in dependency order -->
     <script src="app.js"></script>
 </body>
 </html>
