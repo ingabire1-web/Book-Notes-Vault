@@ -59,7 +59,7 @@ function validateTags(tagsString) {
 function showFieldError(fieldId, message) {
     let errorSpan = document.getElementById(fieldId + '-error');
     let input = document.getElementById(fieldId);
-    if (!errorSpan || !input) return; // Skip if element doesn't exist
+    if (!errorSpan || !input) return;
     if (message) {
         input.style.borderColor = '#cc0000';
         errorSpan.textContent = message;
@@ -89,19 +89,39 @@ document.getElementById('book-form').addEventListener('submit', function(send) {
     
     clearAllErrors();
     
+    let hasError = false;
+    
     let titleError = validateTitle(title);
+    if (titleError) {
+        showFieldError('title', titleError);
+        hasError = true;
+    }
+    
     let authorError = validateAuthor(author);
+    if (authorError) {
+        showFieldError('author', authorError);
+        hasError = true;
+    }
+    
     let pagesError = validatePages(pages);
+    if (pagesError) {
+        showFieldError('pages', pagesError);
+        hasError = true;
+    }
+    
     let dateError = validateDate(dateAdded);
+    if (dateError) {
+        showFieldError('dateAdded', dateError);
+        hasError = true;
+    }
+    
     let tagsError = validateTags(tags);
+    if (tagsError) {
+        showFieldError('tags', tagsError);
+        hasError = true;
+    }
     
-    if (titleError) showFieldError('title', titleError);
-    if (authorError) showFieldError('author', authorError);
-    if (pagesError) showFieldError('pages', pagesError);
-    if (dateError) showFieldError('dateAdded', dateError);
-    if (tagsError) showFieldError('tags', tagsError);
-    
-    if (titleError || authorError || pagesError || dateError || tagsError) {
+    if (hasError) {
         document.getElementById('form-status').textContent = 'Please fix the errors above';
         document.getElementById('form-status').style.color = 'red';
         return;
@@ -134,13 +154,23 @@ document.getElementById('book-form').addEventListener('submit', function(send) {
 function showAllBooks() {
     console.log('Showing all books...');
     
-    let searchTerm = document.getElementById('search-input').value.toLowerCase();
     let tableBody = document.getElementById('table-body');
     let cardContainer = document.getElementById('card-container');
     let noResults = document.getElementById('no-results-message');
     
+    if (!tableBody || !cardContainer) {
+        console.log('Table or card container not found');
+        return;
+    }
+    
     tableBody.innerHTML = '';
     cardContainer.innerHTML = '';
+    
+    let searchTerm = '';
+    let searchInput = document.getElementById('search-input');
+    if (searchInput) {
+        searchTerm = searchInput.value.toLowerCase();
+    }
     
     let filtered = books;
     if (searchTerm) {
@@ -158,10 +188,10 @@ function showAllBooks() {
     console.log('Books to show:', filtered.length);
     
     if (filtered.length === 0) {
-        noResults.style.display = 'block';
+        if (noResults) noResults.style.display = 'block';
         return;
     }
-    noResults.style.display = 'none';
+    if (noResults) noResults.style.display = 'none';
     
     for (let i = 0; i < filtered.length; i++) {
         let book = filtered[i];
@@ -213,27 +243,26 @@ function deleteBook(bookId) {
     }
 }
 
-document.getElementById('search-input').addEventListener('input', function() {
-    console.log('Searching:', this.value);
-    showAllBooks();
-});
-
-document.getElementById('clear-search').addEventListener('click', function() {
-    document.getElementById('search-input').value = '';
-    showAllBooks();
-});
-
 function updateStats() {
     console.log('Updating stats...');
     
-    document.getElementById('total-books').textContent = books.length;
+    let totalBooksEl = document.getElementById('total-books');
+    let totalPagesEl = document.getElementById('total-pages');
+    let pagesReadEl = document.getElementById('pages-read');
+    let topTagEl = document.getElementById('top-tag');
+    let recentBooksEl = document.getElementById('recent-books');
+    let progressFill = document.getElementById('progress-fill');
+    
+    if (!totalBooksEl) return;
+    
+    totalBooksEl.textContent = books.length;
     
     let totalPages = 0;
     for (let i = 0; i < books.length; i++) {
         totalPages += books[i].pages;
     }
-    document.getElementById('total-pages').textContent = totalPages;
-    document.getElementById('pages-read').textContent = totalPages;
+    if (totalPagesEl) totalPagesEl.textContent = totalPages;
+    if (pagesReadEl) pagesReadEl.textContent = totalPages;
     
     let tagCount = {};
     for (let i = 0; i < books.length; i++) {
@@ -251,7 +280,7 @@ function updateStats() {
             topTag = tag;
         }
     }
-    document.getElementById('top-tag').textContent = topTag;
+    if (topTagEl) topTagEl.textContent = topTag;
     
     let now = new Date();
     let weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -260,18 +289,26 @@ function updateStats() {
         let bookDate = new Date(books[i].dateAdded);
         if (bookDate >= weekAgo) recent++;
     }
-    document.getElementById('recent-books').textContent = recent;
+    if (recentBooksEl) recentBooksEl.textContent = recent;
     
     let cap = 1000;
     let percent = Math.min(100, (totalPages / cap) * 100);
-    document.getElementById('progress-fill').style.width = percent + '%';
+    if (progressFill) progressFill.style.width = percent + '%';
     
     console.log('Stats updated! Total books:', books.length);
 }
 
+document.getElementById('search-input').addEventListener('input', function() {
+    showAllBooks();
+});
+
+document.getElementById('clear-search').addEventListener('click', function() {
+    document.getElementById('search-input').value = '';
+    showAllBooks();
+});
+
 document.getElementById('export-btn').addEventListener('click', function() {
     console.log('Exporting data...');
-    
     let data = JSON.stringify(books, null, 2);
     let blob = new Blob([data], { type: 'application/json' });
     let url = URL.createObjectURL(blob);
@@ -279,7 +316,6 @@ document.getElementById('export-btn').addEventListener('click', function() {
     a.href = url;
     a.download = 'books-backup.json';
     a.click();
-    
     console.log('Data exported!');
 });
 
