@@ -1,6 +1,11 @@
 # Book & Notes Vault
 
-Book & Notes Vault is a vanilla HTML, CSS, and JavaScript app for tracking your reading list, notes, tags, and progress. It stores data locally in your browser, so you can manage your collection without a backend.
+Book & Notes Vault is a vanilla HTML, CSS, and JavaScript app for tracking your reading list, notes, tags, and progress. It 
+stores data locally in your browser, so you can manage your collection without a backend.
+
+Demo Video
+
+https://www.loom.com/share/12927f85b987492584ed4427def75c8e
 
 ## Features
 
@@ -40,3 +45,4 @@ All book records are saved in the browser's `localStorage` under the key `myBook
 
 - Email: i.ingabire1@gmail.com
 - GitHub: https://github.com/ingabire1-web
+  
