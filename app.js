@@ -59,6 +59,7 @@ function validateTags(tagsString) {
 function showFieldError(fieldId, message) {
     let errorSpan = document.getElementById(fieldId + '-error');
     let input = document.getElementById(fieldId);
+    if (!errorSpan || !input) return; // Skip if element doesn't exist
     if (message) {
         input.style.borderColor = '#cc0000';
         errorSpan.textContent = message;
