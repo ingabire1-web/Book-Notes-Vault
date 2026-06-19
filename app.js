@@ -1,12 +1,5 @@
-// ============================================
-// BOOK & NOTES VAULT - Simple Version
-// ============================================
+console.log('Book Vault is ready!');
 
-console.log('📚 Book Vault is ready!');
-
-// -------- 1. DATA STORAGE --------
-
-// Load books from browser
 let books = [];
 let saved = localStorage.getItem('myBooks');
 if (saved) {
@@ -14,37 +7,109 @@ if (saved) {
 }
 console.log('Books loaded:', books.length);
 
-// Save books to browser
 function saveBooks() {
     localStorage.setItem('myBooks', JSON.stringify(books));
     console.log('Books saved!');
 }
 
-// -------- 2. ADD BOOK --------
+function validateTitle(title) {
+    if (!title || title.trim() === '') return 'Title is required';
+    if (title.trim().length < 2) return 'Title must be at least 2 characters';
+    if (/^\s|\s$/.test(title)) return 'Remove spaces at start or end';
+    if (/\s{2,}/.test(title)) return 'Remove double spaces';
+    return '';
+}
 
-document.getElementById('book-form').addEventListener('submit', function(e) {
-    e.preventDefault();
+function validateAuthor(author) {
+    if (!author || author.trim() === '') return 'Author is required';
+    if (!/^[A-Za-z][A-Za-z .'-]*$/.test(author)) {
+        return 'Use only letters, spaces, hyphens, periods';
+    }
+    return '';
+}
+
+function validatePages(pages) {
+    if (!pages) return 'Pages is required';
+    let num = Number(pages);
+    if (!/^(0|[1-9]\d*)$/.test(pages)) return 'Must be a whole number';
+    if (num < 1) return 'Must be at least 1 page';
+    if (num > 99999) return 'Maximum 99,999 pages';
+    return '';
+}
+
+function validateDate(date) {
+    if (!date) return 'Date is required';
+    if (!/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/.test(date)) {
+        return 'Invalid date format (YYYY-MM-DD)';
+    }
+    return '';
+}
+
+function validateTags(tagsString) {
+    if (!tagsString || tagsString.trim() === '') return '';
+    let tags = tagsString.split(',').map(t => t.trim());
+    for (let i = 0; i < tags.length; i++) {
+        if (!/^[A-Za-z][A-Za-z -]*$/.test(tags[i])) {
+            return 'Invalid tag: "' + tags[i] + '". Use letters, spaces, hyphens';
+        }
+    }
+    return '';
+}
+
+function showFieldError(fieldId, message) {
+    let errorSpan = document.getElementById(fieldId + '-error');
+    let input = document.getElementById(fieldId);
+    if (message) {
+        input.style.borderColor = '#cc0000';
+        errorSpan.textContent = message;
+    } else {
+        input.style.borderColor = '#e0d5c5';
+        errorSpan.textContent = '';
+    }
+}
+
+function clearAllErrors() {
+    let fields = ['title', 'author', 'pages', 'dateAdded', 'tags'];
+    for (let i = 0; i < fields.length; i++) {
+        showFieldError(fields[i], '');
+    }
+}
+
+document.getElementById('book-form').addEventListener('submit', function(send) {
+    send.preventDefault();
     console.log('Form submitted!');
     
-    // Get values
-    let title = document.getElementById('title').value.trim();
-    let author = document.getElementById('author').value.trim();
+    let title = document.getElementById('title').value;
+    let author = document.getElementById('author').value;
     let pages = document.getElementById('pages').value;
     let dateAdded = document.getElementById('dateAdded').value;
     let tags = document.getElementById('tags').value;
     let notes = document.getElementById('notes').value;
     
-    // Simple validation
-    if (!title || !author || !pages || !dateAdded) {
-        alert('Please fill in all required fields (*)');
+    clearAllErrors();
+    
+    let titleError = validateTitle(title);
+    let authorError = validateAuthor(author);
+    let pagesError = validatePages(pages);
+    let dateError = validateDate(dateAdded);
+    let tagsError = validateTags(tags);
+    
+    if (titleError) showFieldError('title', titleError);
+    if (authorError) showFieldError('author', authorError);
+    if (pagesError) showFieldError('pages', pagesError);
+    if (dateError) showFieldError('dateAdded', dateError);
+    if (tagsError) showFieldError('tags', tagsError);
+    
+    if (titleError || authorError || pagesError || dateError || tagsError) {
+        document.getElementById('form-status').textContent = 'Please fix the errors above';
+        document.getElementById('form-status').style.color = 'red';
         return;
     }
     
-    // Create book object
     let newBook = {
         id: 'book_' + Date.now(),
-        title: title,
-        author: author,
+        title: title.trim(),
+        author: author.trim(),
         pages: Number(pages),
         dateAdded: dateAdded,
         tags: tags ? tags.split(',').map(t => t.trim()) : [],
@@ -53,22 +118,17 @@ document.getElementById('book-form').addEventListener('submit', function(e) {
         updatedAt: new Date().toISOString()
     };
     
-    // Add to list
     books.push(newBook);
     console.log('New book added:', newBook.title);
     
-    // Save and show
     saveBooks();
     showAllBooks();
     updateStats();
     
-    // Clear form
     document.getElementById('book-form').reset();
-    document.getElementById('form-status').textContent = '✅ Book added!';
+    document.getElementById('form-status').textContent = 'Great! Book added successfully!';
     document.getElementById('form-status').style.color = 'green';
 });
-
-// -------- 3. SHOW BOOKS --------
 
 function showAllBooks() {
     console.log('Showing all books...');
@@ -78,11 +138,9 @@ function showAllBooks() {
     let cardContainer = document.getElementById('card-container');
     let noResults = document.getElementById('no-results-message');
     
-    // Clear
     tableBody.innerHTML = '';
     cardContainer.innerHTML = '';
     
-    // Filter books
     let filtered = books;
     if (searchTerm) {
         filtered = books.filter(function(book) {
@@ -92,26 +150,22 @@ function showAllBooks() {
         });
     }
     
-    // Sort by date (newest first)
     filtered.sort(function(a, b) {
         return new Date(b.dateAdded) - new Date(a.dateAdded);
     });
     
     console.log('Books to show:', filtered.length);
     
-    // Show message if empty
     if (filtered.length === 0) {
         noResults.style.display = 'block';
         return;
     }
     noResults.style.display = 'none';
     
-    // Show each book
     for (let i = 0; i < filtered.length; i++) {
         let book = filtered[i];
         let tagsText = book.tags ? book.tags.join(', ') : '';
         
-        // TABLE ROW
         let row = document.createElement('tr');
         row.innerHTML = `
             <td>${book.title}</td>
@@ -125,7 +179,6 @@ function showAllBooks() {
         `;
         tableBody.appendChild(row);
         
-        // CARD (Mobile)
         let card = document.createElement('div');
         card.className = 'book-card';
         card.innerHTML = `
@@ -140,8 +193,6 @@ function showAllBooks() {
         cardContainer.appendChild(card);
     }
 }
-
-// -------- 4. DELETE BOOK --------
 
 function deleteBook(bookId) {
     console.log('Deleting book:', bookId);
@@ -161,8 +212,6 @@ function deleteBook(bookId) {
     }
 }
 
-// -------- 5. SEARCH --------
-
 document.getElementById('search-input').addEventListener('input', function() {
     console.log('Searching:', this.value);
     showAllBooks();
@@ -173,15 +222,11 @@ document.getElementById('clear-search').addEventListener('click', function() {
     showAllBooks();
 });
 
-// -------- 6. STATS --------
-
 function updateStats() {
     console.log('Updating stats...');
     
-    // Total books
     document.getElementById('total-books').textContent = books.length;
     
-    // Total pages
     let totalPages = 0;
     for (let i = 0; i < books.length; i++) {
         totalPages += books[i].pages;
@@ -189,7 +234,6 @@ function updateStats() {
     document.getElementById('total-pages').textContent = totalPages;
     document.getElementById('pages-read').textContent = totalPages;
     
-    // Top tag
     let tagCount = {};
     for (let i = 0; i < books.length; i++) {
         let tags = books[i].tags || [];
@@ -208,7 +252,6 @@ function updateStats() {
     }
     document.getElementById('top-tag').textContent = topTag;
     
-    // This week
     let now = new Date();
     let weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
     let recent = 0;
@@ -218,15 +261,12 @@ function updateStats() {
     }
     document.getElementById('recent-books').textContent = recent;
     
-    // Progress bar
     let cap = 1000;
     let percent = Math.min(100, (totalPages / cap) * 100);
     document.getElementById('progress-fill').style.width = percent + '%';
     
     console.log('Stats updated! Total books:', books.length);
 }
-
-// -------- 7. EXPORT DATA --------
 
 document.getElementById('export-btn').addEventListener('click', function() {
     console.log('Exporting data...');
@@ -242,9 +282,7 @@ document.getElementById('export-btn').addEventListener('click', function() {
     console.log('Data exported!');
 });
 
-// -------- 8. START APP --------
-
-console.log('🚀 App starting...');
+console.log('App starting...');
 showAllBooks();
 updateStats();
-console.log('✅ App is ready!');
+console.log('App is ready!');
